@@ -1,6 +1,6 @@
-.dockerignore
 .idea
 Pipfile.lock
+*.log
 
 # Byte-compiled / optimized / DLL files
 *.py[cod]
