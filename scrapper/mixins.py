@@ -6,7 +6,7 @@ from fake_useragent import UserAgent
 
 from logger_config import logger
 
-SLEEP_SECONDS = 1
+SLEEP_SECONDS = 2
 MAX_TIMEOUT = 1
 
 logging.getLogger('urllib3').setLevel(logging.ERROR)

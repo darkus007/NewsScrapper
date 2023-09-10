@@ -1,5 +1,5 @@
 import re
-from typing import Generator
+from collections.abc import Generator
 from collections import deque
 from abc import ABC, abstractmethod
 
@@ -8,14 +8,18 @@ from bs4 import BeautifulSoup
 from .mixins import RequestsMixin
 
 
-class BaseNewsScrapper(ABC):
+class BaseScrapper(ABC):
+    @abstractmethod
+    def __init__(self, url: str, depth: int, filtered: bool):
+        ...
+
     @abstractmethod
     def parse(self):
         ...
 
 
-class Scrapper(BaseNewsScrapper, RequestsMixin):
-    def __init__(self, url: str, depth: int = 0, filtered: bool = False):
+class Scrapper(RequestsMixin, BaseScrapper):
+    def __init__(self, url: str, depth: int = 0, filtered: bool = True):
         RequestsMixin.__init__(self)
         self.root_url = url
         self.depth = depth + 1
@@ -27,7 +31,7 @@ class Scrapper(BaseNewsScrapper, RequestsMixin):
     def get_root_from_domain_name(base_url: str) -> str:
         return re.findall(r"http[s]{0,1}://[w]{0,3}[.]*(\w+)[.]", base_url)[0]
 
-    def parse(self) -> Generator[dict[str, str]]:
+    def parse(self) -> Generator[dict]:
         """
         Запускает процесс сбора информации.
         Результат отдает по одной странице.

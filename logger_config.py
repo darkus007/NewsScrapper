@@ -13,7 +13,7 @@ logger.setLevel(LOGGER_LEVEL)
 
 log_format = logging.Formatter('%(asctime)s %(name)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S ')
 
-file_handler = logging.handlers.RotatingFileHandler(filename=f'logs/{__name__}.log',
+file_handler = logging.handlers.RotatingFileHandler(filename=f'logs/spyder.log',
                                                     mode='a',
                                                     maxBytes=1048576,   # 1 Мегабайт = 1048576 Байт
                                                     backupCount=10)
