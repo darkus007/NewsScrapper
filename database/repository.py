@@ -1,13 +1,9 @@
-"""
-Модуль содержит абстрактный Репозиторий.
-"""
-
 from abc import ABC, abstractmethod
 
 
 class AbstractRepository(ABC):
     @abstractmethod
-    def __init__(self, connect=None):
+    def __init__(self, *args):
         ...
 
     @abstractmethod

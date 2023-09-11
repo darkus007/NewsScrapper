@@ -9,6 +9,9 @@ connection = psycopg2.connect(DATABASE_URL)
 
 
 class PostgreSQL(AbstractRepository):
+    """
+    Класс для работы с PostgreSQL.
+    """
     def __init__(self, connect=connection):
         self.connect = connect
 

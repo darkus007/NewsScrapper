@@ -1,14 +1,14 @@
 import re
-from collections.abc import Generator
 from collections import deque
+from collections.abc import Generator
 from abc import ABC, abstractmethod
 
 from bs4 import BeautifulSoup
 
-from .mixins import RequestsMixin
+from .html_suppliers import AbstractHtmlSupplier, RequestsHtmlSupplier
 
 
-class BaseScrapper(ABC):
+class AbstractScrapper(ABC):
     @abstractmethod
     def __init__(self, url: str, depth: int, filtered: bool):
         ...
@@ -18,9 +18,11 @@ class BaseScrapper(ABC):
         ...
 
 
-class Scrapper(RequestsMixin, BaseScrapper):
+class BaseScrapper(AbstractScrapper):
+
+    html_supplier: AbstractHtmlSupplier = None
+
     def __init__(self, url: str, depth: int = 0, filtered: bool = True):
-        RequestsMixin.__init__(self)
         self.root_url = url
         self.depth = depth + 1
         self.root_base_url = self.get_root_from_domain_name(self.root_url) if filtered else None
@@ -45,17 +47,16 @@ class Scrapper(RequestsMixin, BaseScrapper):
 
             for url in self.prepared_links.copy():
                 result = {}
-                response = self.requests_get(url)
-                if response and response.status_code == 200:
+                if html := self.html_supplier.get(url):
                     self.parsed_links.add(url)
-                    soup = BeautifulSoup(response.text, 'lxml')
+                    soup = BeautifulSoup(html, 'lxml')
                     title = soup.find("title")
                     if title:
                         result["title"] = title.text
-                        result["url"] = response.url
-                        result["html"] = response.text
+                        result["url"] = url
+                        result["html"] = html
                         if self.depth:
-                            links = self._get_links_from_page(response.text)
+                            links = self._get_links_from_page(html)
                             self.prepared_links.extend(links)
                         yield result
 
@@ -72,7 +73,7 @@ class Scrapper(RequestsMixin, BaseScrapper):
 
     def _get_prepared_links(self, links: list[str]):
         """
-        Проходит по всем собранным со странице ссылкам
+        Проходит по всем собранным со страницы ссылкам
         и подготавливает их для парсинга:
         - добавляет корневой URL, если ссылка содержит только URI;
         - исключает уже обработанные, ссылки;
@@ -98,3 +99,7 @@ class Scrapper(RequestsMixin, BaseScrapper):
                 prepared_links.add(link)
 
         return prepared_links
+
+
+class Scrapper(BaseScrapper):
+    html_supplier: AbstractHtmlSupplier = RequestsHtmlSupplier()

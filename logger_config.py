@@ -5,7 +5,7 @@
 import logging.handlers
 from sys import stdout
 
-LOGGER_LEVEL = "DEBUG"
+LOGGER_LEVEL = "ERROR"
 
 
 logger = logging.getLogger("spyder")
