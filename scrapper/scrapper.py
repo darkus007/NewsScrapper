@@ -52,8 +52,9 @@ class BaseScrapper(AbstractScrapper):
         while self.depth > 0:
             self.depth -= 1
 
-            for url in self.prepared_links.copy():
+            for _ in self.prepared_links.copy():
                 result = {}
+                url = self.prepared_links.popleft()
                 if html := self.html_supplier.get(url):
                     self.parsed_links.add(url)
                     soup = BeautifulSoup(html, 'lxml')
