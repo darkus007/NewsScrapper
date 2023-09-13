@@ -1,14 +1,16 @@
-Dockerfile
 .dockerignore
-Makefile
+.pytest_cache
+Dockerfile
 docker*.yml
+Makefile
+venv
 *.log
 .gitignore
 .editorconfig
 .idea
+.DS_Store
 .git
-
-tests
+.env
 
 **/__pycache__
 **/*.pyc

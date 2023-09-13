@@ -23,7 +23,7 @@ class PostgreSQL(AbstractRepository):
         :param data: Словарь для записи,
                     где ключ - поле таблицы,
                     а значение - данные для записи.
-        :return: int.
+        :return: id добавленной записи.
         """
         if len(data) > 1:
             html = psycopg2.Binary(bytes(data["html"], 'utf-8'))

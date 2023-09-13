@@ -1,9 +1,25 @@
-version: '3.2'
+version: '3.8'
 
 services:
+
   app:
     build: .
+    container_name: news_app
+    env_file:
+      - .env
+    depends_on:
+      - postgres_db
+
+  postgres_db:
+    image: postgres:16rc1-alpine3.18
+    container_name: news_postgres
+    restart: always
     volumes:
-      - /etc/passwd:/etc/passwd:cached
-      - /etc/group:/etc/group:cached
-      - .:/app:cached
+      - ./database/createdb.sql:/docker-entrypoint-initdb.d/createdb.sql
+      - ./database/create_test_db.sql:/docker-entrypoint-initdb.d/create_test_db.sql
+      - news_database:/var/lib/postgresql/data/
+    env_file:
+      - .env
+
+volumes:
+  news_database:

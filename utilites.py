@@ -6,7 +6,7 @@ from functools import wraps
 
 wellcome_cli_text = """
 Проверьте параметры запуска. Доступны следующие варианты:
-spider.py load https://ria.ru --depth 1 -s
+spider.py load https://ria.ru --depth 1 -f -s
 spider.py get https://ria.ru -n 10
 """
 
@@ -41,11 +41,16 @@ def get_args() -> dict:
     Парсит аргументы командной строки.
     :return: Словарь с параметрами.
     """
-    args = argv[1:]
-    if args[0] == "load" and args[2] == "--depth":
-        return {"method": 'load', "url": args[1], "depth": int(args[3]),
-                "display_info": True if '-s' in args else False}
-    elif args[0] == "get" and args[2] == "-n":
-        return {"method": 'get', "url": args[1], "depth": int(args[3])}
-    else:
-        print(wellcome_cli_text)
+    print(f"{argv=}")
+    if len(argv) > 2:
+        try:
+            args = argv[1:]
+            if args[0] == "load" and args[2] == "--depth":
+                return {"method": 'load', "url": args[1], "depth": int(args[3]),
+                        "display_info": True if '-s' in args else False,
+                        "filtered": True if '-f' in args else False}
+            elif args[0] == "get" and args[2] == "-n":
+                return {"method": 'get', "url": args[1], "depth": int(args[3])}
+        except IndexError:
+            pass
+    print(wellcome_cli_text)

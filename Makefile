@@ -3,7 +3,6 @@
 # Makefile readme (en): <https://www.gnu.org/software/make/manual/html_node/index.html#SEC_Contents>
 
 dc_bin := $(shell command -v docker-compose 2> /dev/null)
-
 SHELL = /bin/sh
 RUN_APP_ARGS = --rm --user "$(shell id -u):$(shell id -g)" app
 

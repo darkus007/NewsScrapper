@@ -15,7 +15,7 @@ from fake_useragent import UserAgent
 
 from logger_config import logger
 
-SLEEP_SECONDS = 2
+SLEEP_SECONDS = 0.5
 MAX_TIMEOUT = 1
 
 logging.getLogger('urllib3').setLevel(logging.ERROR)
@@ -52,6 +52,7 @@ class RequestsHtmlSupplier(AbstractHtmlSupplier):
                 session.headers['User-Agent'] = self.useragent.random
                 rq = session.get(url, params=params, headers=headers, timeout=self.timeout)
                 if rq.status_code == 200:
+                    sleep(SLEEP_SECONDS)
                     return rq.text
                 else:
                     logger.info(f"{rq.status_code}: {url}")

@@ -1,11 +1,18 @@
-FROM python:3.8.1-alpine
+FROM python:3.12.0rc2-alpine3.18
 
-COPY ./requirements.txt ./requirements-dev.txt /app/
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+ENV PATH="/app:$PATH"
 
 WORKDIR /app
 
-RUN pip install -r requirements.txt -r requirements-dev.txt
+RUN apk update \
+    && apk add postgresql-dev gcc python3-dev musl-dev
+
+COPY requirements.txt /temp/requirements.txt
+RUN pip install --no-cache-dir -r /temp/requirements.txt
 
 COPY . .
 
-CMD python
+RUN python

@@ -1,1 +1,1 @@
-from .scrapper import BaseScrapper, Scrapper
+from .scrapper import AbstractScrapper, Scrapper

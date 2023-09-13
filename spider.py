@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Модуль содержит класс Spyder
 который обходит произвольный сайт с глубиной до 2 и сохраняет html, url и title страницы в хранилище;
@@ -8,13 +9,14 @@ CLI (command line interface):
     * По урлу сайта из хранилища можно получить n прогруженных страниц (url и title).
 
 Пример:
-spider.py load https://ria.ru --depth 1 -s
+spider.py load http://www.vesti.ru --depth 1 -f -s
 >> ok, execution time: 10s, peak memory usage: 100 Mb
     где:
     --depth 1 - глубина обхода страниц (0 - только главная страница, 1 - главная страница и все ссылки с нее, ...);
+    -f - фильтровать по доменному имени сайта (в примере vesti);
     -s - динамически отображает собранные данные (необязательный параметр).
 
-spider.py get https://ria.ru -n 10
+spider.py get http://www.vesti.ru -n 10
 >> http://www.vesti.ru/news/: "Вести.Ru: новости, видео и фото дня"
 >> http://www.vestifinance.ru/: "Вести Экономика: Главные события российской и мировой экономики, деловые новости,
 фондовый рынок"
@@ -23,10 +25,11 @@ spider.py get https://ria.ru -n 10
     -n - количество выводимой информации (в примере 10 записей).
 """
 import sys
+import tracemalloc
 from typing import Type
 
 from utilites import resource_monitor, get_args
-from scrapper import BaseScrapper, Scrapper
+from scrapper import AbstractScrapper, Scrapper
 from database import AbstractRepository, PostgreSQL
 from logger_config import logger
 
@@ -39,7 +42,7 @@ class RepositoryNotPresented(Exception):
     pass
 
 
-class Spyder:
+class Spider:
     """
     Обходит произвольный сайт с глубиной до 2
     и сохраняет html, url и title страницы в хранилище.
@@ -48,7 +51,7 @@ class Spyder:
 
     def __init__(self, url: str) -> None:
         self.url = url if url[-1] == '/' else url + "/"
-        self._scrapper: Type[BaseScrapper] | None = None
+        self._scrapper: Type[AbstractScrapper] | None = None
         self._database: Type[AbstractRepository] | None = None
         self.display_info: bool = False
 
@@ -85,10 +88,10 @@ class Spyder:
 
                 if self.display_info:
                     print(f'{data["url"]}: "{data["title"]}"')
-                # max_memory_used = tracemalloc.get_traced_memory()[1] / 1024 / 1024
-                # print(f'Memory usage: {max_memory_used} Mb\n')
+                max_memory_used = tracemalloc.get_traced_memory()[1] / 1024 / 1024
+                print(f'Memory usage: {max_memory_used} Mb\n')
         except KeyboardInterrupt:
-            print("Сбор данных прерван пользователем.")
+            print("\nСбор данных прерван пользователем.")
 
     def get(self, limit: int = 50) -> None:
         """
@@ -112,7 +115,7 @@ class Spyder:
         for res in result:
             print(f'{res[0]}: "{res[1]}"')
 
-    def set_scrapper(self, scrapper: Type[BaseScrapper]):
+    def set_scrapper(self, scrapper: Type[AbstractScrapper]):
         """ Устанавливает скраппер. """
         self._scrapper = scrapper
 
@@ -127,19 +130,20 @@ def main() -> None:
     конфигурирует Spyder под требуемую задачу и запускает на выполнение.
     """
     cli_params = get_args()
-    spyder = Spyder(url=cli_params["url"])
+    if cli_params:
+        spyder = Spider(url=cli_params["url"])
 
-    if cli_params["method"] == "load":
-        if cli_params["depth"] > 2:
-            logger.info("Глубина обхода не может быть больше 2.")
-            cli_params["depth"] = 2
-        spyder.set_scrapper(Scrapper)
-        spyder.set_database(PostgreSQL)
-        spyder.display_info = cli_params["display_info"]
-        spyder.load(depth=cli_params["depth"], filtered=True)
-    else:
-        spyder.set_database(PostgreSQL)
-        spyder.get(limit=cli_params["depth"])
+        if cli_params["method"] == "load":
+            if cli_params["depth"] > 2:
+                logger.info("Глубина обхода не может быть больше 2.")
+                cli_params["depth"] = 2
+            spyder.set_scrapper(Scrapper)
+            spyder.set_database(PostgreSQL)
+            spyder.display_info = cli_params["display_info"]
+            spyder.load(depth=cli_params["depth"], filtered=cli_params["filtered"])
+        else:
+            spyder.set_database(PostgreSQL)
+            spyder.get(limit=cli_params["depth"])
 
 
 if __name__ == '__main__':

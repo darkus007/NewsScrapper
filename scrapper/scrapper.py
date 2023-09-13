@@ -8,6 +8,10 @@ from bs4 import BeautifulSoup
 from .html_suppliers import AbstractHtmlSupplier, RequestsHtmlSupplier
 
 
+class HtmlSupplierNotPresented(Exception):
+    pass
+
+
 class AbstractScrapper(ABC):
     @abstractmethod
     def __init__(self, url: str, depth: int, filtered: bool):
@@ -40,6 +44,9 @@ class BaseScrapper(AbstractScrapper):
 
         :return: dict("title": str, "url": str, "html": str)
         """
+        if self.html_supplier is None:
+            raise HtmlSupplierNotPresented("Не предоставлен html supplier.")
+
         self.prepared_links.append(self.root_url)
 
         while self.depth > 0:
