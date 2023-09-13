@@ -41,7 +41,6 @@ def get_args() -> dict:
     Парсит аргументы командной строки.
     :return: Словарь с параметрами.
     """
-    print(f"{argv=}")
     if len(argv) > 2:
         try:
             args = argv[1:]

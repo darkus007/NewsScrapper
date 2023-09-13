@@ -4,7 +4,7 @@
 
 dc_bin := $(shell command -v docker-compose 2> /dev/null)
 SHELL = /bin/sh
-RUN_APP_ARGS = --rm --user "$(shell id -u):$(shell id -g)" app
+RUN_APP_ARGS = --rm app
 
 .PHONY : help build shell test lint start shutdown restart logs clean
 .DEFAULT_GOAL : help
@@ -21,7 +21,7 @@ shell: ## Start shell into container
 	$(dc_bin) run $(RUN_APP_ARGS) sh
 
 test: ## Execute tests
-	$(dc_bin) run $(RUN_APP_ARGS) pytest
+	$(dc_bin) run $(RUN_APP_ARGS) python -m pytest -v
 
 lint:
 	$(dc_bin) run $(RUN_APP_ARGS) flake8 .

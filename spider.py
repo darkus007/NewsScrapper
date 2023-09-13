@@ -25,7 +25,6 @@ spider.py get http://www.vesti.ru -n 10
     -n - количество выводимой информации (в примере 10 записей).
 """
 import sys
-import tracemalloc
 from typing import Type
 
 from utilites import resource_monitor, get_args
@@ -88,8 +87,6 @@ class Spider:
 
                 if self.display_info:
                     print(f'{data["url"]}: "{data["title"]}"')
-                max_memory_used = tracemalloc.get_traced_memory()[1] / 1024 / 1024
-                print(f'Memory usage: {max_memory_used} Mb\n')
         except KeyboardInterrupt:
             print("\nСбор данных прерван пользователем.")
 
